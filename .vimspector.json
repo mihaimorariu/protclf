@@ -1,0 +1,25 @@
+{
+    "configurations": {
+        "train": {
+            "adapter": "debugpy",
+            "default": true,
+            "configuration": {
+                "name": "train",
+                "type": "python",
+                "request": "launch",
+                "python.pythonPath": "python",
+                "program": "${workspaceRoot}/examples/train.py"
+            }
+        },
+        "evaluate": {
+            "adapter": "debugpy",
+            "configuration": {
+                "name": "evaluate",
+                "type": "python",
+                "request": "launch",
+                "python.pythonPath": "python",
+                "program": "${workspaceRoot}/examples/evaluate.py"
+            }
+        }
+    }
+}
