@@ -2,13 +2,17 @@
     "configurations": {
         "train": {
             "adapter": "debugpy",
-            "default": true,
             "configuration": {
                 "name": "train",
                 "type": "python",
                 "request": "launch",
-                "python.pythonPath": "python",
-                "program": "${workspaceRoot}/examples/train.py"
+                "python": "$HOME/.conda/envs/protoclf/bin/python",
+                "program": "${workspaceRoot}/scripts/train.py",
+                "args": ["-i", "data/random_split", "-o", "runs"],
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PYTHONPATH": "${workspaceRoot}"
+                }
             }
         },
         "evaluate": {
@@ -17,8 +21,26 @@
                 "name": "evaluate",
                 "type": "python",
                 "request": "launch",
-                "python.pythonPath": "python",
-                "program": "${workspaceRoot}/examples/evaluate.py"
+                "python": "$HOME/.conda/envs/protoclf/bin/python",
+                "program": "${workspaceRoot}/scripts/evaluate.py",
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PYTHONPATH": "${workspaceRoot}"
+                }
+            }
+        },
+        "jupyter": {
+            "adapter": "debugpy",
+            "configuration": {
+                "name": "jupyter",
+                "type": "python",
+                "request": "launch",
+                "python": "$HOME/.conda/envs/protoclf/bin/python",
+                "program": "${workspaceRoot}/ml-pipeline-refactoring.py",
+                "cwd": "${workspaceRoot}",
+                "env": {
+                    "PYTHONPATH": "${workspaceRoot}"
+                }
             }
         }
     }
