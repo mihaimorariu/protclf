@@ -1,4 +1,5 @@
 import os
+import torch
 import unittest
 
 from protclf.datasets.sequence import SequenceDataset
@@ -16,4 +17,6 @@ class TestSequence(unittest.TestCase):
         batch = dataset[0]
         sequence, label = batch["sequence"], batch["label"]
         self.assertEqual(len(sequence), 20)
+        self.assertTrue(isinstance(sequence, torch.Tensor))
         self.assertEqual(label, 1)
+        self.assertTrue(isinstance(label, torch.Tensor))
