@@ -8,7 +8,7 @@
                 "request": "launch",
                 "python": "$HOME/.conda/envs/protoclf/bin/python",
                 "program": "${workspaceRoot}/scripts/train.py",
-                "args": ["-i", "data/random_split", "-o", "runs"],
+                "args": ["--data_dir", "data/random_split"],
                 "cwd": "${workspaceRoot}",
                 "env": {
                     "PYTHONPATH": "${workspaceRoot}"
@@ -23,6 +23,7 @@
                 "request": "launch",
                 "python": "$HOME/.conda/envs/protoclf/bin/python",
                 "program": "${workspaceRoot}/scripts/evaluate.py",
+                "args": ["--data_dir", "data/random_split", "--checkpoint_file", "lightning_logs/version_0/checkpoints/epoch=0-step=26.ckpt"],
                 "cwd": "${workspaceRoot}",
                 "env": {
                     "PYTHONPATH": "${workspaceRoot}"
