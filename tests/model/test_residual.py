@@ -1,7 +1,7 @@
 import torch
 import unittest
 
-from protclf.model import ResidualBlock
+from protclf.model.residual import ResidualBlock
 
 
 class TestResidualBlock(unittest.TestCase):
