@@ -28,7 +28,7 @@ class SequenceDataset(Dataset):
                              "values: 'train', 'dev' or 'test'")
 
         col_names = ["sequence", "family_accession"]
-        all_data = self.__load_csv(data_dir, split, col_names)
+        all_data = self.__load_from_csv(data_dir, split, col_names)
 
         self.max_seq_len = max_seq_len
         self.sequences = all_data["sequence"]
@@ -37,10 +37,10 @@ class SequenceDataset(Dataset):
         self.amino2id = self.__create_amino2id_dict(self.sequences)
         self.label2id = self.__create_label2id_dict(self.labels)
 
-    def __load_csv(self,
-                   data_dir: str,
-                   split: str,
-                   col_names: List[str] = None) -> DataFrame:
+    def __load_from_csv(self,
+                        data_dir: str,
+                        split: str,
+                        col_names: List[str] = None) -> DataFrame:
         # Loads data (filtered by given column names) from the CSV files into a
         # pandas DataFrame.
         all_data = []
