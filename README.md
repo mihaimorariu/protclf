@@ -1,6 +1,7 @@
 # Protein Classifier
 
 [![Build Status](https://app.travis-ci.com/mihaimorariu/protclf.svg?token=yatWBzfXsh22xdxmuxCU&branch=main)](https://app.travis-ci.com/mihaimorariu/protclf)
+[![codecov](https://codecov.io/gh/mihaimorariu/protclf/branch/main/graph/badge.svg?token=XzssKCBdMw)](https://codecov.io/gh/mihaimorariu/protclf)
 
 This repository contains my implementation of the protein classification problem. Specifically, for a given protein sequence, the task is to assign the corresponding Pfam family (i.e. protein family). More information about the Pfam family can be found [here](https://en.wikipedia.org/wiki/Pfam).
 
