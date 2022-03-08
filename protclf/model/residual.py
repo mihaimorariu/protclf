@@ -1,23 +1,23 @@
 import torch
-from torch.nn.functional import relu
+import torch.nn.functional as F
 
 
 class ResidualBlock(torch.nn.Module):
-    """
-    Implements a residual block (https://arxiv.org/pdf/1512.03385.pdf).
-
-    Args:
-        in_channels (int): Number of channels (feature maps) of the incoming
-            embedding.
-        out_channels (int): Number of channels after the first convolution.
-        dilation (int): Dilation rate of the first convolution. Default value
-            is 1.
-    """
 
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
                  dilation: int = 1) -> None:
+        """
+        Implements a residual block (https://arxiv.org/pdf/1512.03385.pdf).
+
+        Args:
+            in_channels (int): Number of channels (feature maps) of the
+                incoming embedding.
+            out_channels (int): Number of channels after the first convolution.
+            dilation (int): Dilation rate of the first convolution. Default
+                value is 1.
+        """
         super().__init__()
 
         self.skip = torch.nn.Sequential()
@@ -36,7 +36,18 @@ class ResidualBlock(torch.nn.Module):
                                      padding=1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        activation = relu(self.bn1(x))
+        """
+        Performs a forward pass.
+
+        Args:
+            x (torch.Tensor): Input tensor. Its shape is
+                [batch_size, in_channels, max_data_len].
+
+        Returns:
+            torch.Tensor: Tensor containing the result of the residual block.
+                Its shape is [batch_size, out_channels, max_data_len].
+        """
+        activation = F.relu(self.bn1(x))
         x1 = self.conv1(activation)
-        x2 = self.conv2(relu(self.bn2(x1)))
+        x2 = self.conv2(F.relu(self.bn2(x1)))
         return x2 + self.skip(x)
