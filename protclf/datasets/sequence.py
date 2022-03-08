@@ -54,9 +54,19 @@ class SequenceDataset(Dataset):
         return all_data
 
     def get_num_unique_labels(self) -> int:
+        """
+
+        Returns:
+            int: The number of unique family labels in the dataset.
+        """
         return len(self.label2id)
 
     def get_num_unique_aminos(self) -> int:
+        """
+
+        Returns:
+            int: The number of unique amino acid codes in the dataset.
+        """
         return len(self.amino2id)
 
     def __create_label2id_dict(self, labels: Series) -> Dict[str, int]:
@@ -106,6 +116,16 @@ class SequenceDataset(Dataset):
         return amino_ids_one_hot
 
     def __getitem__(self, index: int) -> Dict[str, torch.Tensor]:
+        """
+        Returns the item with a given index from the dataset.
+
+        Args:
+            index (int): Index value.
+
+        Returns:
+            dict: Dictionary containing the amino acid sequence (represented as
+                one-hot encoding) and its corresponding family label (as int).
+        """
         amino_ids_one_hot = self.__convert_to_one_hot(
             self.sequences.iloc[index])
         label_id = self.label2id.get(self.labels.iloc[index],
