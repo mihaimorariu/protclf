@@ -9,6 +9,9 @@ def main(args):
     pl.seed_everything(args.seed)
 
     train_dataset = SequenceDataset(args.data_dir, "train")
+    train_dataset.plot_label_distribution()
+    train_dataset.plot_seq_len_distribution()
+    train_dataset.plot_amino_distribution()
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=args.batch_size,
                                                shuffle=True,

@@ -1,11 +1,14 @@
-import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 import os
+import pandas as pd
 import torch
 
 from torch.nn.functional import one_hot
 from torch.utils.data import Dataset
 from typing import List, Dict
 from pandas.core.frame import DataFrame, Series
+from collections import Counter
 
 
 class SequenceDataset(Dataset):
@@ -33,6 +36,7 @@ class SequenceDataset(Dataset):
         self.max_seq_len = max_seq_len
         self.sequences = all_data["sequence"]
         self.labels = all_data["family_accession"]
+        self.split = split
 
         self.amino2id = self.__create_amino2id_dict(self.sequences)
         self.label2id = self.__create_label2id_dict(self.labels)
@@ -133,3 +137,78 @@ class SequenceDataset(Dataset):
         label_id = torch.as_tensor(label_id)
 
         return {"sequence": amino_ids_one_hot, "label": label_id}
+
+    # Note: the methods below could also be moved outside of the class should
+    # there be some assumptions about the shape and type of the data we are
+    # dealing with. For example:
+    # - They could be moved to a common/visual.py module which contained some
+    #   helper methods for plotting data.
+    # - They could be moved to a base class (e.g., BaseSequenceDataset) and
+    #   have a CSVSequenceDataset derive from it.
+
+    def plot_label_distribution(self) -> None:
+        _, ax = plt.subplots(figsize=(8, 5))
+
+        sorted_labels = self.labels.groupby(
+            self.labels).size().sort_values(ascending=False)
+        sns.histplot(sorted_labels.values, kde=True, log_scale=True, ax=ax)
+
+        plt.title("Distribution of family sizes for the '" + self.split +
+                  "' split")
+        plt.xlabel("Family size (log scale)")
+        plt.ylabel("# Families")
+        plt.show()
+
+    def plot_seq_len_distribution(self) -> None:
+        _, ax = plt.subplots(figsize=(8, 5))
+
+        sequence_lengths = self.sequences.str.len()
+        median = sequence_lengths.median()
+        mean = sequence_lengths.mean()
+
+        sns.histplot(sequence_lengths.values,
+                     kde=True,
+                     log_scale=True,
+                     bins=60,
+                     ax=ax)
+
+        ax.axvline(mean, color='r', linestyle='-', label=f"Mean = {mean:.1f}")
+        ax.axvline(median,
+                   color='g',
+                   linestyle='-',
+                   label=f"Median = {median:.1f}")
+
+        plt.title("Distribution of sequence lengths")
+        plt.xlabel("Sequence' length (log scale)")
+        plt.ylabel("# Sequences")
+        plt.legend(loc="best")
+        plt.show()
+
+    def plot_amino_distribution(self) -> None:
+        _, ax = plt.subplots(figsize=(8, 5))
+
+        def get_amino_acid_frequencies(data):
+            aa_counter = Counter()
+
+            for sequence in data:
+                aa_counter.update(sequence)
+
+            return pd.DataFrame({
+                'AA': list(aa_counter.keys()),
+                'Frequency': list(aa_counter.values())
+            })
+
+        amino_acid_counter = get_amino_acid_frequencies(self.sequences)
+
+        sns.barplot(x='AA',
+                    y='Frequency',
+                    data=amino_acid_counter.sort_values(by=['Frequency'],
+                                                        ascending=False),
+                    ax=ax)
+
+        plt.title("Distribution of AAs' frequencies in the '" + self.split +
+                  "' split")
+        plt.xlabel("Amino acid codes")
+        plt.ylabel("Frequency (log scale)")
+        plt.yscale("log")
+        plt.show()
