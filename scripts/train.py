@@ -15,13 +15,13 @@ def main(args):
     train_loader = torch.utils.data.DataLoader(train_dataset,
                                                batch_size=args.batch_size,
                                                shuffle=True,
-                                               num_workers=0)
+                                               num_workers=8)
 
     dev_dataset = SequenceDataset(args.data_dir, "dev")
     dev_loader = torch.utils.data.DataLoader(dev_dataset,
                                              batch_size=args.batch_size,
                                              shuffle=False,
-                                             num_workers=0)
+                                             num_workers=8)
 
     model = ProtCNN(
         num_classes=train_dataset.get_num_unique_labels(),
