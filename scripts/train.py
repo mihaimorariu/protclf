@@ -1,7 +1,7 @@
 import argparse
 import torch
 import pytorch_lightning as pl
-from protclf.datasets import SequenceDataset
+from protclf.dataset import SequenceDataset
 from protclf.model import ProtCNN
 
 

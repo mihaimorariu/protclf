@@ -2,7 +2,7 @@ import os
 import torch
 import unittest
 
-from protclf.datasets.sequence import SequenceDataset
+from protclf.dataset import SequenceDataset
 
 
 class TestSequence(unittest.TestCase):
