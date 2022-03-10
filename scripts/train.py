@@ -24,7 +24,8 @@ def main(args):
                                              num_workers=8)
 
     model = ProtCNN(
-        num_classes=train_dataset.get_num_unique_labels(),
+        num_unique_aminos=train_dataset.get_num_unique_aminos(),
+        num_unique_labels=train_dataset.get_num_unique_labels(),
         learning_rate=args.learning_rate,
         weight_decay=args.weight_decay,
         momentum=args.momentum,

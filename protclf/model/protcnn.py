@@ -34,7 +34,8 @@ class Lambda(torch.nn.Module):
 class ProtCNN(pl.LightningModule):
 
     def __init__(self,
-                 num_classes: int,
+                 num_unique_aminos: int,
+                 num_unique_labels: int,
                  learning_rate: float = 1e-2,
                  weight_decay: float = 1e-2,
                  momentum: float = 0.9,
@@ -45,16 +46,20 @@ class ProtCNN(pl.LightningModule):
         https://www.biorxiv.org/content/10.1101/626507v3.full
 
         Args:
-            num_classes (int): Number of output classes.
+            num_unique_aminos (int): Number of unique amino acid codes.
+            num_unique_labels (int): Number of unique family labels.
         """
         super().__init__()
         self.model = torch.nn.Sequential(
-            torch.nn.Conv1d(22, 128, kernel_size=1, padding=0, bias=False),
-            ResidualBlock(128, 128, dilation=2),
+            torch.nn.Conv1d(num_unique_aminos,
+                            128,
+                            kernel_size=1,
+                            padding=0,
+                            bias=False), ResidualBlock(128, 128, dilation=2),
             ResidualBlock(128, 128, dilation=3),
             torch.nn.MaxPool1d(3, stride=2, padding=1),
             Lambda(lambda x: x.flatten(start_dim=1)),
-            torch.nn.Linear(7680, num_classes))
+            torch.nn.Linear(7680, num_unique_labels))
 
         # Save the learning hyperparameters in self.hparams.
         self.save_hyperparameters()
