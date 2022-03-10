@@ -21,6 +21,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser = pl.Trainer.add_argparse_args(parser)
     parser.add_argument("--data_dir", "-d", required=True)
     parser.add_argument("--checkpoint_file", "-c", required=True)
     parser.add_argument("--batch_size", "-b", type=int, default=512)
