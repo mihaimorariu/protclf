@@ -41,13 +41,13 @@ nvidia-docker cp [path_to_dataset] protclf:/home/protclf/data
 From the root directory, run the following command:
 
 ```
-python3 scripts/train.py --data_dir data --default_root_dir runs
+python scripts/train.py --data_dir data --default_root_dir runs
 ```
 
 For more information about which arguments that you can pass to the training script, run the following command:
 
 ```
-python3 scripts/train.py -h
+python scripts/train.py -h
 ```
 
 Note that training will take time, so feel free to do some other activities in the meantime. The model weights will be saved under the `runs` directory in a file ending in the `.ckpt` extension.
@@ -57,5 +57,5 @@ Note that training will take time, so feel free to do some other activities in t
 From the root directory, run the following command:
 
 ```
-python3 scripts/evaluate.py --data_dir data --checkpoint_file [path_to_checkpoint_file]
+python scripts/evaluate.py --data_dir data --checkpoint_file [path_to_checkpoint_file]
 ```
