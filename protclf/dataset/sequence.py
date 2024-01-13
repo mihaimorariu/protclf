@@ -1,34 +1,37 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
-import pandas as pd
-import torch
+from collections import Counter
+from typing import Any, Dict, List
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+import torch
+from pandas.core.frame import DataFrame
 from torch.nn.functional import one_hot
 from torch.utils.data import Dataset
-from typing import List, Dict
-from pandas.core.frame import DataFrame, Series
-from collections import Counter
 
 
 class SequenceDataset(Dataset):
-
-    def __init__(self,
-                 data_dir: str,
-                 split: str,
-                 max_seq_len: int = 120) -> None:
+    def __init__(
+        self,
+        data_dir: str,
+        split: str,
+        max_seq_len: int = 120,
+    ) -> None:
         """
         Creates an instance of the sequence dataset.
 
         Args:
-            data_dir (str): Path to the dataset directory.
-            split (str): Subset of the dataset that needs to be loaded. It must
-                take one of the following values: 'train', 'dev' or 'test'.
-            max_seq_len (int): Maximum sequence length. Default value is 120.
+            data_dir: Path to the dataset directory
+            split: Subset of the dataset that needs to be loaded (must
+                take one of the following values: "train", "dev" or "test")
+            max_seq_len: Maximum sequence length (default value is 120)
         """
         if split not in ["train", "dev", "test"]:
-            raise ValueError("'split' needs to take one of the following " +
-                             "values: 'train', 'dev' or 'test'")
+            raise ValueError(
+                "'split' needs to take one of the following "
+                + "values: 'train', 'dev' or 'test'"
+            )
 
         col_names = ["sequence", "family_accession"]
         all_data = self.__load_from_csv(data_dir, split, col_names)
@@ -41,10 +44,12 @@ class SequenceDataset(Dataset):
         self.amino2id = self.__create_amino2id_dict(self.sequences)
         self.label2id = self.__create_label2id_dict(self.labels)
 
-    def __load_from_csv(self,
-                        data_dir: str,
-                        split: str,
-                        col_names: List[str] = None) -> DataFrame:
+    def __load_from_csv(
+        self,
+        data_dir: str,
+        split: str,
+        col_names: List[str],
+    ) -> DataFrame:
         # Loads data (filtered by given column names) from the CSV files into a
         # pandas DataFrame.
         all_data = []
@@ -58,29 +63,24 @@ class SequenceDataset(Dataset):
         return all_data
 
     def get_num_unique_labels(self) -> int:
-        """
-
-        Returns:
-            int: The number of unique family labels in the dataset.
-        """
+        """Returns the number of unique family labels in the dataset"""
         return len(self.label2id)
 
     def get_num_unique_aminos(self) -> int:
-        """
-
-        Returns:
-            int: The number of unique amino acid codes in the dataset.
-        """
+        """Returns the number of unique amino acid codes in the dataset."""
         return len(self.amino2id)
 
-    def __create_label2id_dict(self, labels: Series) -> Dict[str, int]:
+    def __create_label2id_dict(
+        self,
+        labels: Any,
+    ) -> Dict[str, int]:
         # Maps a (family) label to an integer and returns the corresponding
         # dictionary.
         unique_labels = labels.unique()
-        labels = {f: i for i, f in enumerate(unique_labels, start=1)}
-        labels["<unk>"] = 0
+        labels_dict = {f: i for i, f in enumerate(unique_labels, start=1)}
+        labels_dict["<unk>"] = 0
 
-        return labels
+        return labels_dict
 
     def __create_amino2id_dict(self, sequences):
         # Maps a sequence (as str) to an ID (as int) and returns the
@@ -106,12 +106,12 @@ class SequenceDataset(Dataset):
         # output is a torch.Tensor of shape [num_labels, n_samples].
         amino_ids = []
 
-        for amino in sequence[:self.max_seq_len]:
-            amino_ids.append(self.amino2id.get(amino, self.amino2id['<unk>']))
+        for amino in sequence[: self.max_seq_len]:
+            amino_ids.append(self.amino2id.get(amino, self.amino2id["<unk>"]))
 
         if len(amino_ids) < self.max_seq_len:
             remaining = self.max_seq_len - len(amino_ids)
-            amino_ids += [self.amino2id['<pad>'] for _ in range(remaining)]
+            amino_ids += [self.amino2id["<pad>"] for _ in range(remaining)]
 
         amino_ids = torch.as_tensor(amino_ids)
         amino_ids_one_hot = one_hot(amino_ids, num_classes=len(self.amino2id))
@@ -124,16 +124,19 @@ class SequenceDataset(Dataset):
         Returns the item with a given index from the dataset.
 
         Args:
-            index (int): Index value.
+            index: Index value.
 
         Returns:
             dict: Dictionary containing the amino acid sequence (represented as
                 one-hot encoding) and its corresponding family label (as int).
         """
         amino_ids_one_hot = self.__convert_to_one_hot(
-            self.sequences.iloc[index])
-        label_id = self.label2id.get(self.labels.iloc[index],
-                                     self.label2id['<unk>'])
+            self.sequences.iloc[index],
+        )
+        label_id = self.label2id.get(
+            self.labels.iloc[index],
+            self.label2id["<unk>"],
+        )
         label_id = torch.as_tensor(label_id)
 
         return {"sequence": amino_ids_one_hot, "label": label_id}
@@ -149,12 +152,21 @@ class SequenceDataset(Dataset):
     def plot_label_distribution(self) -> None:
         _, ax = plt.subplots(figsize=(8, 5))
 
-        sorted_labels = self.labels.groupby(
-            self.labels).size().sort_values(ascending=False)
-        sns.histplot(sorted_labels.values, kde=True, log_scale=True, ax=ax)
+        sorted_labels = (  # type: ignore
+            self.labels.groupby(self.labels)
+            .size()
+            .sort_values(
+                ascending=False,
+            )
+        )
+        sns.histplot(
+            sorted_labels.values,  # type: ignore
+            kde=True,
+            log_scale=True,
+            ax=ax,
+        )
 
-        plt.title("Distribution of family sizes for the '" + self.split +
-                  "' split")
+        plt.title(f"Distribution of family sizes ('{self.split}') split")
         plt.xlabel("Family size (log scale)")
         plt.ylabel("# Families")
         plt.show()
@@ -166,17 +178,26 @@ class SequenceDataset(Dataset):
         median = sequence_lengths.median()
         mean = sequence_lengths.mean()
 
-        sns.histplot(sequence_lengths.values,
-                     kde=True,
-                     log_scale=True,
-                     bins=60,
-                     ax=ax)
+        sns.histplot(
+            sequence_lengths.values,
+            kde=True,
+            log_scale=True,
+            bins=60,
+            ax=ax,
+        )
 
-        ax.axvline(mean, color='r', linestyle='-', label=f"Mean = {mean:.1f}")
-        ax.axvline(median,
-                   color='g',
-                   linestyle='-',
-                   label=f"Median = {median:.1f}")
+        ax.axvline(
+            mean,
+            color="r",
+            linestyle="-",
+            label=f"Mean = {mean:.1f}",
+        )
+        ax.axvline(
+            median,
+            color="g",
+            linestyle="-",
+            label=f"Median = {median:.1f}",
+        )
 
         plt.title("Distribution of sequence lengths")
         plt.xlabel("Sequence' length (log scale)")
@@ -193,21 +214,26 @@ class SequenceDataset(Dataset):
             for sequence in data:
                 aa_counter.update(sequence)
 
-            return pd.DataFrame({
-                'AA': list(aa_counter.keys()),
-                'Frequency': list(aa_counter.values())
-            })
+            return pd.DataFrame(
+                {
+                    "AA": list(aa_counter.keys()),
+                    "Frequency": list(aa_counter.values()),
+                }
+            )
 
         amino_acid_counter = get_amino_acid_frequencies(self.sequences)
 
-        sns.barplot(x='AA',
-                    y='Frequency',
-                    data=amino_acid_counter.sort_values(by=['Frequency'],
-                                                        ascending=False),
-                    ax=ax)
+        sns.barplot(
+            x="AA",
+            y="Frequency",
+            data=amino_acid_counter.sort_values(
+                by=["Frequency"],
+                ascending=False,
+            ),
+            ax=ax,
+        )
 
-        plt.title("Distribution of AAs' frequencies in the '" + self.split +
-                  "' split")
+        plt.title(f"Distribution of AAs' frequencies ('{self.split}' split)")
         plt.xlabel("Amino acid codes")
         plt.ylabel("Frequency (log scale)")
         plt.yscale("log")
