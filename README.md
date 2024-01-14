@@ -1,6 +1,7 @@
 # Protein Classifier
 
 ![Build Status](https://github.com/mihaimorariu/protclf/actions/workflows/main.yml/badge.svg)
+![Code Coverage](https://raw.githubusercontent.com/mihaimorariu/protclf/coverage-badge/coverage.svg)
 
 This repository contains an implementation of the protein classification problem. Specifically, for a given protein sequence, the task is to assign the corresponding Pfam family (i.e. protein family). More information about the Pfam family can be found [here](https://en.wikipedia.org/wiki/Pfam).
 
